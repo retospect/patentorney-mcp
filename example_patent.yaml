@@ -1,0 +1,281 @@
+metadata:
+  title: "Continuous-Flow Reactor for Metal-Organic Framework Synthesis"
+  applicant: "Acme Materials Inc."
+  inventors:
+    - name: "Jane Smith"
+      address: "123 Lab Street, Boston, MA 02101"
+    - name: "Bob Chen"
+      address: "456 Chemistry Avenue, Cambridge, MA 02139"
+  filing_date: ""
+  target_jurisdictions:
+    - EP
+    - US
+  related_applications:
+    - type: provisional
+      number: "63/555,123"
+      date: "2024-03-15"
+      status: expired
+  government_funded: false
+  joint_research_agreement: false
+  sequence_listing: false
+
+reference_numerals:
+  - id: reactor-vessel
+    label: "reactor vessel"
+    number: 100
+    prev_numbers: []
+    introduced_in: reactor-overview
+  - id: inlet-port
+    label: "inlet port"
+    number: 102
+    prev_numbers: []
+    introduced_in: reactor-overview
+  - id: mof-precursor-solution
+    label: "MOF precursor solution"
+    number: 104
+    prev_numbers: []
+    introduced_in: reactor-overview
+  - id: linker-molecule
+    label: "linker molecule"
+    number: 106
+    prev_numbers: []
+    introduced_in: reactor-overview
+  - id: metal-salt-solution
+    label: "metal salt solution"
+    number: 108
+    prev_numbers: []
+    introduced_in: reactor-overview
+  - id: mixing-chamber
+    label: "mixing chamber"
+    number: 200
+    prev_numbers: []
+    introduced_in: mixing-detail
+  - id: heating-element
+    label: "heating element"
+    number: 202
+    prev_numbers: []
+    introduced_in: mixing-detail
+  - id: collection-vessel
+    label: "collection vessel"
+    number: 300
+    prev_numbers: []
+    introduced_in: process-flow
+
+figures:
+  - id: reactor-overview
+    title: "a schematic view of the continuous-flow reactor assembly"
+    description: "Shows the overall reactor vessel with inlet and outlet ports, precursor feeds, and collection system."
+    numerals_shown:
+      - reactor-vessel
+      - inlet-port
+      - mof-precursor-solution
+      - linker-molecule
+      - metal-salt-solution
+  - id: mixing-detail
+    title: "a cross-sectional detail view of the mixing chamber"
+    description: "Shows the internal geometry of the mixing chamber and heating element arrangement."
+    numerals_shown:
+      - mixing-chamber
+      - heating-element
+  - id: process-flow
+    title: "a process flow diagram for MOF synthesis"
+    description: "Shows the sequential steps from precursor preparation through collection and washing."
+    numerals_shown:
+      - collection-vessel
+      - reactor-vessel
+      - mixing-chamber
+
+claims:
+  - id: mof-synthesis-method
+    type: independent
+    category: method
+    depends_on: null
+    body:
+      preamble: "A method for continuous synthesis of a metal-organic framework"
+      transitional: "comprising"
+      elements:
+        - text: "providing a reactor vessel configured for continuous flow"
+          numerals:
+            - reactor-vessel
+          spec_support: ""
+        - text: "introducing a metal salt solution into the reactor vessel through an inlet port"
+          numerals:
+            - metal-salt-solution
+            - reactor-vessel
+            - inlet-port
+          spec_support: ""
+        - text: "introducing a linker molecule into a mixing chamber within the reactor vessel"
+          numerals:
+            - linker-molecule
+            - mixing-chamber
+            - reactor-vessel
+          spec_support: ""
+        - text: "heating the mixing chamber using a heating element to a temperature sufficient to initiate framework assembly"
+          numerals:
+            - mixing-chamber
+            - heating-element
+          spec_support: ""
+        - text: "collecting the synthesized metal-organic framework in a collection vessel"
+          numerals:
+            - collection-vessel
+          spec_support: ""
+    reference_numerals_used:
+      - reactor-vessel
+      - inlet-port
+      - metal-salt-solution
+      - linker-molecule
+      - mixing-chamber
+      - heating-element
+      - collection-vessel
+
+  - id: mof-synthesis-temp-range
+    type: dependent
+    category: method
+    depends_on: mof-synthesis-method
+    body:
+      preamble: ""
+      transitional: "wherein"
+      elements:
+        - text: "the heating element maintains the mixing chamber at a temperature between 80°C and 150°C"
+          numerals:
+            - heating-element
+            - mixing-chamber
+          spec_support: ""
+    reference_numerals_used:
+      - heating-element
+      - mixing-chamber
+
+  - id: mof-synthesis-flow-rate
+    type: dependent
+    category: method
+    depends_on: mof-synthesis-method
+    body:
+      preamble: ""
+      transitional: "wherein"
+      elements:
+        - text: "the metal salt solution is introduced at a flow rate of between 0.1 and 10 mL/min"
+          numerals:
+            - metal-salt-solution
+          spec_support: ""
+    reference_numerals_used:
+      - metal-salt-solution
+
+  - id: mof-synthesis-linker-type
+    type: dependent
+    category: method
+    depends_on: mof-synthesis-method
+    body:
+      preamble: ""
+      transitional: "wherein"
+      elements:
+        - text: "the linker molecule is selected from the group consisting of terephthalic acid, trimesic acid, and 2-methylimidazole"
+          numerals:
+            - linker-molecule
+          spec_support: ""
+    reference_numerals_used:
+      - linker-molecule
+
+  - id: mof-reactor-apparatus
+    type: independent
+    category: apparatus
+    depends_on: null
+    body:
+      preamble: "A continuous-flow reactor apparatus for metal-organic framework synthesis"
+      transitional: "comprising"
+      elements:
+        - text: "a reactor vessel having an inlet port and an outlet port"
+          numerals:
+            - reactor-vessel
+            - inlet-port
+          spec_support: ""
+        - text: "a mixing chamber disposed within the reactor vessel"
+          numerals:
+            - mixing-chamber
+            - reactor-vessel
+          spec_support: ""
+        - text: "a heating element thermally coupled to the mixing chamber"
+          numerals:
+            - heating-element
+            - mixing-chamber
+          spec_support: ""
+        - text: "a collection vessel in fluid communication with the outlet port of the reactor vessel"
+          numerals:
+            - collection-vessel
+            - reactor-vessel
+          spec_support: ""
+    reference_numerals_used:
+      - reactor-vessel
+      - inlet-port
+      - mixing-chamber
+      - heating-element
+      - collection-vessel
+
+  - id: mof-reactor-modular
+    type: dependent
+    category: apparatus
+    depends_on: mof-reactor-apparatus
+    body:
+      preamble: ""
+      transitional: "wherein"
+      elements:
+        - text: "the mixing chamber is removably mounted within the reactor vessel"
+          numerals:
+            - mixing-chamber
+            - reactor-vessel
+          spec_support: ""
+    reference_numerals_used:
+      - mixing-chamber
+      - reactor-vessel
+
+prior_art:
+  - id: smith2023-mof-batch
+    citation: "Smith et al., 'Batch Synthesis of MOF-5 in Solvothermal Conditions', J. Mat. Chem. A, 2023, 11, 1234-1240"
+    doi: "10.1039/D3TA01234A"
+    relevance: "Describes MOF synthesis but only in batch mode; does not teach continuous flow"
+    distinguishing_features:
+      - "Batch process only, no continuous flow"
+      - "No mixing chamber geometry optimization"
+      - "No temperature-controlled in-line mixing"
+    claims_affected:
+      - mof-synthesis-method
+      - mof-reactor-apparatus
+    tome_key: smith2023
+
+  - id: jones2022-flow-chem
+    citation: "Jones & Patel, 'Continuous Flow Chemistry for Coordination Polymers', Chem. Rev. 2022, 122, 5678-5699"
+    doi: "10.1021/acs.chemrev.2c00567"
+    relevance: "Reviews continuous flow for coordination polymers generally but not MOFs specifically"
+    distinguishing_features:
+      - "General coordination polymers, not MOF-specific"
+      - "Does not disclose specific mixing chamber geometry"
+    claims_affected:
+      - mof-synthesis-method
+    tome_key: jones2022
+
+ids_submissions: []
+
+glossary:
+  - term: "reactor vessel"
+    numeral: reactor-vessel
+    aliases_rejected:
+      - "reaction chamber"
+      - "reactor"
+      - "reaction vessel"
+  - term: "mixing chamber"
+    numeral: mixing-chamber
+    aliases_rejected:
+      - "mixer"
+      - "mixing zone"
+      - "mixing region"
+  - term: "metal salt solution"
+    numeral: metal-salt-solution
+    aliases_rejected:
+      - "metal solution"
+      - "salt solution"
+      - "precursor solution"
+  - term: "heating element"
+    numeral: heating-element
+    aliases_rejected:
+      - "heater"
+      - "heat source"
+      - "heating means"
