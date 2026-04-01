@@ -29,12 +29,18 @@ def good_patent() -> Patent:
     return Patent(
         reference_numerals=[
             ReferenceNumeral(
-                id="rv", label="reactor vessel", number=100,
-                prev_numbers=[], introduced_in="f1",
+                id="rv",
+                label="reactor vessel",
+                number=100,
+                prev_numbers=[],
+                introduced_in="f1",
             ),
             ReferenceNumeral(
-                id="ip", label="inlet port", number=102,
-                prev_numbers=[], introduced_in="f1",
+                id="ip",
+                label="inlet port",
+                number=102,
+                prev_numbers=[],
+                introduced_in="f1",
             ),
         ],
         figures=[
@@ -42,12 +48,16 @@ def good_patent() -> Patent:
         ],
         claims=[
             Claim(
-                id="m1", type="independent", category="method",
+                id="m1",
+                type="independent",
+                category="method",
                 body=ClaimBody(
                     preamble="A method for synthesis",
                     transitional="comprising",
                     elements=[
-                        ClaimElement(text="providing a reactor vessel", numerals=["rv"]),
+                        ClaimElement(
+                            text="providing a reactor vessel", numerals=["rv"]
+                        ),
                         ClaimElement(
                             text="introducing fluid through an inlet port",
                             numerals=["ip"],
@@ -70,7 +80,9 @@ class TestConsistency:
         p = Patent(
             claims=[
                 Claim(
-                    id="m1", type="independent", category="method",
+                    id="m1",
+                    type="independent",
+                    category="method",
                     reference_numerals_used=["nonexistent"],
                 ),
             ],
@@ -83,8 +95,11 @@ class TestConsistency:
         p = Patent(
             reference_numerals=[
                 ReferenceNumeral(
-                    id="orphan", label="orphan", number=100,
-                    prev_numbers=[], introduced_in="f1",
+                    id="orphan",
+                    label="orphan",
+                    number=100,
+                    prev_numbers=[],
+                    introduced_in="f1",
                 ),
             ],
             figures=[Figure(id="f1", title="fig", numerals_shown=[])],
@@ -104,7 +119,12 @@ class TestConsistency:
     def test_dangling_depends_on(self):
         p = Patent(
             claims=[
-                Claim(id="dep", type="dependent", category="method", depends_on="nonexistent"),
+                Claim(
+                    id="dep",
+                    type="dependent",
+                    category="method",
+                    depends_on="nonexistent",
+                ),
             ],
         )
         diags = validate_consistency(p)
@@ -114,7 +134,9 @@ class TestConsistency:
     def test_backward_dependency(self):
         p = Patent(
             claims=[
-                Claim(id="dep", type="dependent", category="method", depends_on="indep"),
+                Claim(
+                    id="dep", type="dependent", category="method", depends_on="indep"
+                ),
                 Claim(id="indep", type="independent", category="method"),
             ],
         )
@@ -126,8 +148,7 @@ class TestConsistency:
 class TestJurisdiction:
     def test_ep_excess_claims(self):
         claims = [
-            Claim(id=f"c{i}", type="independent", category="method")
-            for i in range(16)
+            Claim(id=f"c{i}", type="independent", category="method") for i in range(16)
         ]
         p = Patent(metadata=Patent().metadata, claims=claims)
         p.metadata.target_jurisdictions = ["EP"]
@@ -137,8 +158,7 @@ class TestJurisdiction:
 
     def test_us_excess_independent(self):
         claims = [
-            Claim(id=f"c{i}", type="independent", category="method")
-            for i in range(4)
+            Claim(id=f"c{i}", type="independent", category="method") for i in range(4)
         ]
         p = Patent(claims=claims)
         diags = check_jurisdiction(p, "US")
@@ -148,10 +168,14 @@ class TestJurisdiction:
     def test_us_excess_total(self):
         claims = [Claim(id="indep", type="independent", category="method")]
         for i in range(20):
-            claims.append(Claim(
-                id=f"dep{i}", type="dependent",
-                category="method", depends_on="indep",
-            ))
+            claims.append(
+                Claim(
+                    id=f"dep{i}",
+                    type="dependent",
+                    category="method",
+                    depends_on="indep",
+                )
+            )
         p = Patent(claims=claims)
         diags = check_jurisdiction(p, "US")
         codes = [d["code"] for d in diags]
@@ -163,11 +187,15 @@ class TestAntecedentBasis:
         p = Patent(
             claims=[
                 Claim(
-                    id="m1", type="independent", category="method",
+                    id="m1",
+                    type="independent",
+                    category="method",
                     body=ClaimBody(
                         preamble="A method",
                         elements=[
-                            ClaimElement(text="heating the reactor vessel to a temperature"),
+                            ClaimElement(
+                                text="heating the reactor vessel to a temperature"
+                            ),
                         ],
                     ),
                 ),
@@ -181,7 +209,9 @@ class TestAntecedentBasis:
         p = Patent(
             claims=[
                 Claim(
-                    id="m1", type="independent", category="method",
+                    id="m1",
+                    type="independent",
+                    category="method",
                     body=ClaimBody(
                         preamble="A method",
                         elements=[
@@ -195,7 +225,8 @@ class TestAntecedentBasis:
         diags = check_antecedent_basis(p)
         # Should not flag "the reactor vessel" since "a reactor vessel" precedes it
         antecedent_diags = [
-            d for d in diags
+            d
+            for d in diags
             if d["code"] == "antecedent_basis_missing"
             and "reactor vessel" in d["message"]
         ]
@@ -206,7 +237,9 @@ class TestAntecedentBasis:
         p = Patent(
             claims=[
                 Claim(
-                    id="a1", type="independent", category="apparatus",
+                    id="a1",
+                    type="independent",
+                    category="apparatus",
                     body=ClaimBody(
                         preamble="A device having decking slats defining gaps therebetween",
                         elements=[
@@ -218,9 +251,9 @@ class TestAntecedentBasis:
         )
         diags = check_antecedent_basis(p)
         gap_diags = [
-            d for d in diags
-            if d["code"] == "antecedent_basis_missing"
-            and "gaps" in d["message"]
+            d
+            for d in diags
+            if d["code"] == "antecedent_basis_missing" and "gaps" in d["message"]
         ]
         assert len(gap_diags) == 0
 
@@ -229,16 +262,22 @@ class TestAntecedentBasis:
         p = Patent(
             claims=[
                 Claim(
-                    id="a1", type="independent", category="apparatus",
+                    id="a1",
+                    type="independent",
+                    category="apparatus",
                     body=ClaimBody(
                         preamble="An apparatus",
                         elements=[
-                            ClaimElement(text="a body formed from a flat blank of sheet metal"),
+                            ClaimElement(
+                                text="a body formed from a flat blank of sheet metal"
+                            ),
                         ],
                     ),
                 ),
                 Claim(
-                    id="a2", type="dependent", category="apparatus",
+                    id="a2",
+                    type="dependent",
+                    category="apparatus",
                     depends_on="a1",
                     body=ClaimBody(
                         preamble="",
@@ -252,9 +291,9 @@ class TestAntecedentBasis:
         )
         diags = check_antecedent_basis(p)
         sheet_diags = [
-            d for d in diags
-            if d["code"] == "antecedent_basis_missing"
-            and "sheet" in d["message"]
+            d
+            for d in diags
+            if d["code"] == "antecedent_basis_missing" and "sheet" in d["message"]
         ]
         assert len(sheet_diags) == 0
 
@@ -264,11 +303,15 @@ class TestClarity:
         p = Patent(
             claims=[
                 Claim(
-                    id="m1", type="independent", category="method",
+                    id="m1",
+                    type="independent",
+                    category="method",
                     body=ClaimBody(
                         preamble="A method",
                         elements=[
-                            ClaimElement(text="providing approximately 100mL of solution"),
+                            ClaimElement(
+                                text="providing approximately 100mL of solution"
+                            ),
                         ],
                     ),
                 ),
@@ -282,7 +325,9 @@ class TestClarity:
         p = Patent(
             claims=[
                 Claim(
-                    id="a1", type="independent", category="apparatus",
+                    id="a1",
+                    type="independent",
+                    category="apparatus",
                     body=ClaimBody(
                         preamble="An apparatus",
                         elements=[
@@ -300,7 +345,9 @@ class TestClarity:
         p = Patent(
             claims=[
                 Claim(
-                    id="m1", type="independent", category="method",
+                    id="m1",
+                    type="independent",
+                    category="method",
                     body=ClaimBody(
                         preamble="A method",
                         elements=[
@@ -320,8 +367,13 @@ class TestDifferentiation:
         p = Patent(
             claims=[
                 Claim(id="m1", type="independent", category="method"),
-                Claim(id="m1a", type="dependent", category="method", depends_on="m1",
-                       body=ClaimBody(preamble="", elements=[])),
+                Claim(
+                    id="m1a",
+                    type="dependent",
+                    category="method",
+                    depends_on="m1",
+                    body=ClaimBody(preamble="", elements=[]),
+                ),
             ],
         )
         diags = check_differentiation(p)
@@ -334,7 +386,9 @@ class TestTerminology:
         p = Patent(
             claims=[
                 Claim(
-                    id="m1", type="independent", category="method",
+                    id="m1",
+                    type="independent",
+                    category="method",
                     body=ClaimBody(
                         preamble="A method",
                         elements=[ClaimElement(text="providing a heater for heating")],
@@ -342,7 +396,9 @@ class TestTerminology:
                 ),
             ],
             glossary=[
-                GlossaryEntry(term="heating element", numeral="he", aliases_rejected=["heater"]),
+                GlossaryEntry(
+                    term="heating element", numeral="he", aliases_rejected=["heater"]
+                ),
             ],
         )
         diags = check_terminology(p)
@@ -354,10 +410,16 @@ class TestTerminology:
         p = Patent(
             claims=[
                 Claim(
-                    id="a1", type="independent", category="apparatus",
+                    id="a1",
+                    type="independent",
+                    category="apparatus",
                     body=ClaimBody(
                         preamble="An apparatus",
-                        elements=[ClaimElement(text="an anchor portion extending from the body")],
+                        elements=[
+                            ClaimElement(
+                                text="an anchor portion extending from the body"
+                            )
+                        ],
                     ),
                 ),
             ],
@@ -373,10 +435,14 @@ class TestTerminology:
         p = Patent(
             claims=[
                 Claim(
-                    id="a1", type="independent", category="apparatus",
+                    id="a1",
+                    type="independent",
+                    category="apparatus",
                     body=ClaimBody(
                         preamble="An apparatus",
-                        elements=[ClaimElement(text="an anchor extending from the body")],
+                        elements=[
+                            ClaimElement(text="an anchor extending from the body")
+                        ],
                     ),
                 ),
             ],

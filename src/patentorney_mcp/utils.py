@@ -28,6 +28,7 @@ logger = logging.getLogger("patentorney_mcp")
 # Error
 # ---------------------------------------------------------------------------
 
+
 class PatentorneyError(Exception):
     """Raised when the LLM needs to take a corrective action.
 
@@ -48,7 +49,7 @@ class NoRootError(PatentorneyError):
         super().__init__(
             "No patent project configured.",
             hint="Call set_root(path='/absolute/path/to/project') — "
-                 "the directory containing patent.yaml.",
+            "the directory containing patent.yaml.",
         )
 
 
@@ -73,7 +74,7 @@ class DuplicateError(PatentorneyError):
         super().__init__(
             f"{kind.title()} '{id_value}' already exists.",
             hint=f"Use {kind}(action='get', id='{id_value}') to inspect it, "
-                 f"or choose a different id.",
+            f"or choose a different id.",
         )
 
 
@@ -209,7 +210,7 @@ class PatentTransaction:
 
     def __enter__(self) -> Patent:
         self._lock_path.parent.mkdir(parents=True, exist_ok=True)
-        self._lock_fd = open(self._lock_path, "w")  # noqa: SIM115
+        self._lock_fd = open(self._lock_path, "w")
         fcntl.flock(self._lock_fd, fcntl.LOCK_EX)
         self._patent = load_patent(self._path)
         return self._patent
@@ -247,7 +248,9 @@ def render_claim_text(
 
     # Build preamble
     if claim.type == "dependent" and parent_number is not None:
-        preamble = f"The {claim.category} of claim {parent_number}, {body.transitional}:"
+        preamble = (
+            f"The {claim.category} of claim {parent_number}, {body.transitional}:"
+        )
     elif body.preamble:
         preamble = f"{body.preamble}, {body.transitional}:"
     else:
@@ -307,7 +310,9 @@ def export_claims_text(patent: Patent, jurisdiction: str = "EP") -> str:
         parent_num: int | None = None
         if claim.depends_on is not None:
             parent_num = patent.claim_number(claim.depends_on)
-        lines.append(render_claim_text(claim, claim_num, patent, jurisdiction, parent_num))
+        lines.append(
+            render_claim_text(claim, claim_num, patent, jurisdiction, parent_num)
+        )
         lines.append("")  # blank line between claims
 
     return "\n".join(lines).rstrip()
@@ -403,40 +408,42 @@ def export_numerals_latex(patent: Patent) -> str:
             f"\\expandafter\\def\\csname pn@{slug}@fig\\endcsname{{{fig_num}}}"
         )
 
-    lines.extend([
-        "",
-        "% --- guard: warn on unknown slug ---",
-        "\\newcommand{\\pn@check}[1]{%",
-        "  \\ifcsname pn@#1@num\\endcsname\\else",
-        "    \\PackageWarning{numerals}{Unknown numeral slug '#1'}%",
-        "  \\fi",
-        "}",
-        "",
-        "% --- user commands ---",
-        "\\providecommand{\\pn}[1]{%",
-        "  \\pn@check{#1}%",
-        "  \\csname pn@#1@label\\endcsname~(\\csname pn@#1@num\\endcsname)%",
-        "}",
-        "\\providecommand{\\pnlabel}[1]{%",
-        "  \\pn@check{#1}%",
-        "  \\csname pn@#1@label\\endcsname%",
-        "}",
-        "\\providecommand{\\pnnum}[1]{%",
-        "  \\pn@check{#1}%",
-        "  (\\csname pn@#1@num\\endcsname)%",
-        "}",
-        "\\providecommand{\\pnbare}[1]{%",
-        "  \\pn@check{#1}%",
-        "  \\csname pn@#1@num\\endcsname%",
-        "}",
-        "\\providecommand{\\pnfig}[1]{%",
-        "  \\pn@check{#1}%",
-        "  FIG.~\\csname pn@#1@fig\\endcsname%",
-        "}",
-        "",
-        "\\makeatother",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "% --- guard: warn on unknown slug ---",
+            "\\newcommand{\\pn@check}[1]{%",
+            "  \\ifcsname pn@#1@num\\endcsname\\else",
+            "    \\PackageWarning{numerals}{Unknown numeral slug '#1'}%",
+            "  \\fi",
+            "}",
+            "",
+            "% --- user commands ---",
+            "\\providecommand{\\pn}[1]{%",
+            "  \\pn@check{#1}%",
+            "  \\csname pn@#1@label\\endcsname~(\\csname pn@#1@num\\endcsname)%",
+            "}",
+            "\\providecommand{\\pnlabel}[1]{%",
+            "  \\pn@check{#1}%",
+            "  \\csname pn@#1@label\\endcsname%",
+            "}",
+            "\\providecommand{\\pnnum}[1]{%",
+            "  \\pn@check{#1}%",
+            "  (\\csname pn@#1@num\\endcsname)%",
+            "}",
+            "\\providecommand{\\pnbare}[1]{%",
+            "  \\pn@check{#1}%",
+            "  \\csname pn@#1@num\\endcsname%",
+            "}",
+            "\\providecommand{\\pnfig}[1]{%",
+            "  \\pn@check{#1}%",
+            "  FIG.~\\csname pn@#1@fig\\endcsname%",
+            "}",
+            "",
+            "\\makeatother",
+            "",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -470,17 +477,13 @@ def render_status(patent: Patent) -> str:
 
     # Figures
     if patent.figures:
-        figs = " | ".join(
-            f"{f.id}({i + 1})" for i, f in enumerate(patent.figures)
-        )
+        figs = " | ".join(f"{f.id}({i + 1})" for i, f in enumerate(patent.figures))
         lines.append(f"Figures: {figs}")
         lines.append("")
 
     # Numerals (compact)
     if patent.reference_numerals:
-        nums = " ".join(
-            f"{rn.number}\u2192{rn.id}" for rn in patent.reference_numerals
-        )
+        nums = " ".join(f"{rn.number}\u2192{rn.id}" for rn in patent.reference_numerals)
         lines.append(f"Numerals: {nums}")
 
     return "\n".join(lines).strip()

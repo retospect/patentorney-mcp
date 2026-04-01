@@ -59,9 +59,11 @@ logger.setLevel(logging.DEBUG)
 
 _stderr_handler = logging.StreamHandler(sys.stderr)
 _stderr_handler.setLevel(logging.WARNING)
-_stderr_handler.setFormatter(logging.Formatter(
-    "%(asctime)s %(levelname)s %(name)s: %(message)s", datefmt="%H:%M:%S"
-))
+_stderr_handler.setFormatter(
+    logging.Formatter(
+        "%(asctime)s %(levelname)s %(name)s: %(message)s", datefmt="%H:%M:%S"
+    )
+)
 logger.addHandler(_stderr_handler)
 
 
@@ -101,9 +103,11 @@ def _guarded_tool(**kwargs):
                 logger.error("TOOL %s crashed:\n%s", name, traceback.format_exc())
                 guide_topic = _TOOL_GUIDE.get(name, "")
                 hint = f" See guide('{guide_topic}') for usage." if guide_topic else ""
-                return json.dumps({
-                    "error": f"Internal error in {name}: {type(exc).__name__}: {exc}.{hint}"
-                })
+                return json.dumps(
+                    {
+                        "error": f"Internal error in {name}: {type(exc).__name__}: {exc}.{hint}"
+                    }
+                )
 
         return decorator(guarded)
 
@@ -234,13 +238,14 @@ def _read_guide_body(path: Path) -> str:
     if text.startswith("---"):
         end = text.find("---", 3)
         if end != -1:
-            text = text[end + 3:]
+            text = text[end + 3 :]
     return text.strip()
 
 
 # ---------------------------------------------------------------------------
 # Claim dispatcher
 # ---------------------------------------------------------------------------
+
 
 @mcp_server.tool()
 def claim(
@@ -261,9 +266,13 @@ def claim(
     if action == "get":
         return _claim_get(id)
     elif action == "add":
-        return _claim_add(id, category, type, depends_on, preamble, transitional, elements)
+        return _claim_add(
+            id, category, type, depends_on, preamble, transitional, elements
+        )
     elif action == "update":
-        return _claim_update(id, category, type, depends_on, preamble, transitional, elements)
+        return _claim_update(
+            id, category, type, depends_on, preamble, transitional, elements
+        )
     elif action == "remove":
         return _claim_remove(id)
     elif action == "move":
@@ -317,13 +326,20 @@ def _claim_get(id_or_number: str) -> str:
 
 
 def _claim_add(
-    id: str, category: str, claim_type: str, depends_on: str,
-    preamble: str, transitional: str, elements: str,
+    id: str,
+    category: str,
+    claim_type: str,
+    depends_on: str,
+    preamble: str,
+    transitional: str,
+    elements: str,
 ) -> str:
     if not id:
         raise MissingParamError("id")
     if not category:
-        raise MissingParamError("category", hint="Use: method, apparatus, composition, or use.")
+        raise MissingParamError(
+            "category", hint="Use: method, apparatus, composition, or use."
+        )
 
     ct = claim_type if claim_type else ("dependent" if depends_on else "independent")
     dep = depends_on if depends_on else None
@@ -359,7 +375,8 @@ def _claim_add(
             parent = patent.resolve_claim(dep)
             if parent is None:
                 raise NotFoundError(
-                    "claim", dep,
+                    "claim",
+                    dep,
                     hint="depends_on must reference an existing claim slug or number.",
                 )
             # Resolve to slug
@@ -368,12 +385,19 @@ def _claim_add(
         patent.claims.append(new_claim)
         num = patent.claim_number(new_claim.id)
 
-    return json.dumps({"ok": True, "id": id, "number": num, "type": ct, "category": category})
+    return json.dumps(
+        {"ok": True, "id": id, "number": num, "type": ct, "category": category}
+    )
 
 
 def _claim_update(
-    id_or_number: str, category: str, claim_type: str, depends_on: str,
-    preamble: str, transitional: str, elements: str,
+    id_or_number: str,
+    category: str,
+    claim_type: str,
+    depends_on: str,
+    preamble: str,
+    transitional: str,
+    elements: str,
 ) -> str:
     if not id_or_number:
         raise MissingParamError("id")
@@ -394,7 +418,8 @@ def _claim_update(
                 parent = patent.resolve_claim(depends_on)
                 if parent is None:
                     raise NotFoundError(
-                        "claim", depends_on,
+                        "claim",
+                        depends_on,
                         hint="depends_on must reference an existing claim slug or number.",
                     )
                 c.depends_on = parent.id
@@ -454,7 +479,8 @@ def _claim_move(id_or_number: str, after: str) -> str:
             target = patent.resolve_claim(after)
             if target is None:
                 raise NotFoundError(
-                    "claim", after,
+                    "claim",
+                    after,
                     hint="The 'after' param must be an existing claim slug or number, or 'first'.",
                 )
             idx = next(i for i, cl in enumerate(patent.claims) if cl.id == target.id)
@@ -501,6 +527,7 @@ def _claim_rename(old_id: str, new_id: str) -> str:
 # ---------------------------------------------------------------------------
 # Figure dispatcher
 # ---------------------------------------------------------------------------
+
 
 @mcp_server.tool()
 def figure(
@@ -558,10 +585,13 @@ def _figure_get(id_or_number: str) -> str:
     nm = patent.numeral_by_slug()
     data["_numeral_details"] = [
         {
-            "slug": s, "number": nm[s].number, "label": nm[s].label,
+            "slug": s,
+            "number": nm[s].number,
+            "label": nm[s].label,
             "latex": f"\\pn{{{s}}}",
         }
-        for s in f.numerals_shown if s in nm
+        for s in f.numerals_shown
+        if s in nm
     ]
     return json.dumps(data, indent=2)
 
@@ -581,12 +611,15 @@ def _figure_add(id: str, title: str, description: str, numerals_shown: str) -> s
         for s in slugs:
             if s not in nm:
                 raise NotFoundError(
-                    "numeral", s,
+                    "numeral",
+                    s,
                     hint="Register it first with numeral(action='add', ...).",
                 )
 
         fig = Figure(
-            id=id, title=title, description=description,
+            id=id,
+            title=title,
+            description=description,
             numerals_shown=slugs,
         )
         patent.figures.append(fig)
@@ -595,7 +628,9 @@ def _figure_add(id: str, title: str, description: str, numerals_shown: str) -> s
     return json.dumps({"ok": True, "id": id, "fig_label": f"FIG. {num}"})
 
 
-def _figure_update(id_or_number: str, title: str, description: str, numerals_shown: str) -> str:
+def _figure_update(
+    id_or_number: str, title: str, description: str, numerals_shown: str
+) -> str:
     if not id_or_number:
         raise MissingParamError("id")
 
@@ -614,7 +649,8 @@ def _figure_update(id_or_number: str, title: str, description: str, numerals_sho
             for s in slugs:
                 if s not in nm:
                     raise NotFoundError(
-                        "numeral", s,
+                        "numeral",
+                        s,
                         hint="Register it first with numeral(action='add', ...).",
                     )
             f.numerals_shown = slugs
@@ -633,7 +669,9 @@ def _figure_remove(id_or_number: str) -> str:
 
         # Check if any numerals are introduced in this figure
         slug = f.id
-        introduced_here = [rn.id for rn in patent.reference_numerals if rn.introduced_in == slug]
+        introduced_here = [
+            rn.id for rn in patent.reference_numerals if rn.introduced_in == slug
+        ]
         if introduced_here:
             raise DependencyError("figure", slug, introduced_here)
 
@@ -695,6 +733,7 @@ def _figure_rename(old_id: str, new_id: str) -> str:
 # ---------------------------------------------------------------------------
 # Numeral dispatcher
 # ---------------------------------------------------------------------------
+
 
 @mcp_server.tool()
 def numeral(
@@ -761,7 +800,8 @@ def _numeral_add(id: str, label: str, figure_id: str, series: str) -> str:
         fig = patent.resolve_figure(figure_id)
         if fig is None:
             raise NotFoundError(
-                "figure", figure_id,
+                "figure",
+                figure_id,
                 hint="Add the figure first with figure(action='add', ...).",
             )
 
@@ -794,13 +834,21 @@ def _numeral_add(id: str, label: str, figure_id: str, series: str) -> str:
         if id not in fig.numerals_shown:
             fig.numerals_shown.append(id)
 
-    return json.dumps({
-        "ok": True, "id": id, "number": number, "label": label, "figure": fig.id,
-        "latex": f"\\pn{{{id}}} \u2192 {label}~({number})",
-    })
+    return json.dumps(
+        {
+            "ok": True,
+            "id": id,
+            "number": number,
+            "label": label,
+            "figure": fig.id,
+            "latex": f"\\pn{{{id}}} \u2192 {label}~({number})",
+        }
+    )
 
 
-def _numeral_update(id_or_number: str, new_label: str = "", new_figure: str = "") -> str:
+def _numeral_update(
+    id_or_number: str, new_label: str = "", new_figure: str = ""
+) -> str:
     if not id_or_number:
         raise MissingParamError("id")
 
@@ -817,11 +865,15 @@ def _numeral_update(id_or_number: str, new_label: str = "", new_figure: str = ""
                 raise NotFoundError("figure", new_figure)
             rn.introduced_in = fig.id
 
-    return json.dumps({
-        "ok": True, "id": rn.id, "number": rn.number,
-        "latex": f"\\pn{{{rn.id}}} \u2192 {rn.label}~({rn.number})",
-        "hint": "Run export('numerals_latex') to update LaTeX macros.",
-    })
+    return json.dumps(
+        {
+            "ok": True,
+            "id": rn.id,
+            "number": rn.number,
+            "latex": f"\\pn{{{rn.id}}} \u2192 {rn.label}~({rn.number})",
+            "hint": "Run export('numerals_latex') to update LaTeX macros.",
+        }
+    )
 
 
 def _numeral_remove(id_or_number: str) -> str:
@@ -835,12 +887,8 @@ def _numeral_remove(id_or_number: str) -> str:
 
         slug = rn.id
         # Check for references in claims and figures
-        refs_in_claims = [
-            c.id for c in patent.claims if slug in c.all_numeral_slugs()
-        ]
-        refs_in_figures = [
-            f.id for f in patent.figures if slug in f.numerals_shown
-        ]
+        refs_in_claims = [c.id for c in patent.claims if slug in c.all_numeral_slugs()]
+        refs_in_figures = [f.id for f in patent.figures if slug in f.numerals_shown]
 
         if refs_in_claims or refs_in_figures:
             raise DependencyError("numeral", slug, refs_in_claims + refs_in_figures)
@@ -882,23 +930,25 @@ def _numeral_rename(old_id: str, new_id: str) -> str:
                 new_id if s == old_slug else s for s in c.reference_numerals_used
             ]
             for el in c.body.elements:
-                el.numerals = [
-                    new_id if s == old_slug else s for s in el.numerals
-                ]
+                el.numerals = [new_id if s == old_slug else s for s in el.numerals]
 
         # Cascade through glossary
         for g in patent.glossary:
             if g.numeral == old_slug:
                 g.numeral = new_id
 
-    return json.dumps({
-        "ok": True, "old_id": old_slug, "new_id": new_id,
-        "latex": f"\\pn{{{new_id}}} (was \\pn{{{old_slug}}})",
-        "hint": (
-            "Run export('numerals_latex') to update LaTeX macros."
-            " Update \\pn{{}} references in .tex files."
-        ),
-    })
+    return json.dumps(
+        {
+            "ok": True,
+            "old_id": old_slug,
+            "new_id": new_id,
+            "latex": f"\\pn{{{new_id}}} (was \\pn{{{old_slug}}})",
+            "hint": (
+                "Run export('numerals_latex') to update LaTeX macros."
+                " Update \\pn{{}} references in .tex files."
+            ),
+        }
+    )
 
 
 def _numeral_renumber() -> str:
@@ -927,11 +977,13 @@ def _numeral_renumber() -> str:
                     if old_number not in rn.prev_numbers:
                         rn.prev_numbers.append(old_number)
                     rn.number = next_num
-                    changes.append({
-                        "id": slug,
-                        "old": old_number,
-                        "new": next_num,
-                    })
+                    changes.append(
+                        {
+                            "id": slug,
+                            "old": old_number,
+                            "new": next_num,
+                        }
+                    )
                 next_num += 2
 
         # Handle numerals not in any figure
@@ -946,23 +998,26 @@ def _numeral_renumber() -> str:
                     if old_number not in rn.prev_numbers:
                         rn.prev_numbers.append(old_number)
                     rn.number = next_orphan
-                    changes.append(
-                        {"id": rn.id, "old": old_number, "new": next_orphan}
-                    )
+                    changes.append({"id": rn.id, "old": old_number, "new": next_orphan})
                 next_orphan += 2
 
     if not changes:
         return json.dumps({"ok": True, "message": "No changes needed"})
 
-    return json.dumps({
-        "ok": True, "changes": changes,
-        "hint": "Run export('numerals_latex') to update LaTeX macros.",
-    }, indent=2)
+    return json.dumps(
+        {
+            "ok": True,
+            "changes": changes,
+            "hint": "Run export('numerals_latex') to update LaTeX macros.",
+        },
+        indent=2,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Prior art dispatcher
 # ---------------------------------------------------------------------------
+
 
 @mcp_server.tool()
 def prior_art(
@@ -987,13 +1042,23 @@ def prior_art(
         return _prior_art_get(id)
     elif action == "add":
         return _prior_art_add(
-            id, citation, doi, relevance,
-            distinguishing_features, claims_affected, tome_key,
+            id,
+            citation,
+            doi,
+            relevance,
+            distinguishing_features,
+            claims_affected,
+            tome_key,
         )
     elif action == "update":
         return _prior_art_update(
-            id, citation, doi, relevance,
-            distinguishing_features, claims_affected, tome_key,
+            id,
+            citation,
+            doi,
+            relevance,
+            distinguishing_features,
+            claims_affected,
+            tome_key,
         )
     elif action == "remove":
         return _prior_art_remove(id)
@@ -1019,13 +1084,20 @@ def _prior_art_get(id_str: str) -> str:
 
 
 def _prior_art_add(
-    id: str, citation: str, doi: str, relevance: str,
-    distinguishing_features: str, claims_affected: str, tome_key: str,
+    id: str,
+    citation: str,
+    doi: str,
+    relevance: str,
+    distinguishing_features: str,
+    claims_affected: str,
+    tome_key: str,
 ) -> str:
     if not id:
         raise MissingParamError("id")
 
-    dist_feats = _parse_slug_list(distinguishing_features) if distinguishing_features else []
+    dist_feats = (
+        _parse_slug_list(distinguishing_features) if distinguishing_features else []
+    )
     affected = _parse_slug_list(claims_affected) if claims_affected else []
 
     with PatentTransaction() as patent:
@@ -1047,8 +1119,13 @@ def _prior_art_add(
 
 
 def _prior_art_update(
-    id_str: str, citation: str, doi: str, relevance: str,
-    distinguishing_features: str, claims_affected: str, tome_key: str,
+    id_str: str,
+    citation: str,
+    doi: str,
+    relevance: str,
+    distinguishing_features: str,
+    claims_affected: str,
+    tome_key: str,
 ) -> str:
     if not id_str:
         raise MissingParamError("id")
@@ -1123,20 +1200,26 @@ def _ids_check() -> str:
     unsubmitted = [pa.id for pa in patent.prior_art if pa.id not in submitted]
 
     if not unsubmitted:
-        return json.dumps({
-            "ok": True,
-            "message": "All prior art has been disclosed in IDS submissions.",
-        })
+        return json.dumps(
+            {
+                "ok": True,
+                "message": "All prior art has been disclosed in IDS submissions.",
+            }
+        )
 
-    return json.dumps({
-        "warning": "Duty of candor: the following prior art has not been submitted in any IDS",
-        "unsubmitted": unsubmitted,
-    }, indent=2)
+    return json.dumps(
+        {
+            "warning": "Duty of candor: the following prior art has not been submitted in any IDS",
+            "unsubmitted": unsubmitted,
+        },
+        indent=2,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Glossary dispatcher
 # ---------------------------------------------------------------------------
+
 
 @mcp_server.tool()
 def glossary(
@@ -1229,9 +1312,12 @@ def _glossary_remove(term: str) -> str:
 # Export dispatcher
 # ---------------------------------------------------------------------------
 
+
 @mcp_server.tool()
 def export(
-    target: str = "status", scope: str = "all", jurisdiction: str = "",
+    target: str = "status",
+    scope: str = "all",
+    jurisdiction: str = "",
 ) -> str:
     """Export & validate: status|check|claims|drawings_description|
     claims_latex|drawings_latex|numerals_latex|latex."""
@@ -1248,16 +1334,21 @@ def export(
         tex_dir = project_root() / "sections"
         diags = run_checks(patent, scope, tex_dir if tex_dir.is_dir() else None)
         if not diags:
-            return json.dumps({"ok": True, "message": f"No issues found (scope: {scope})"})
+            return json.dumps(
+                {"ok": True, "message": f"No issues found (scope: {scope})"}
+            )
         errors = [d for d in diags if d["level"] == "error"]
         warnings = [d for d in diags if d["level"] == "warning"]
         infos = [d for d in diags if d["level"] == "info"]
-        return json.dumps({
-            "summary": f"{len(errors)} errors, {len(warnings)} warnings, {len(infos)} info",
-            "errors": errors,
-            "warnings": warnings,
-            "info": infos,
-        }, indent=2)
+        return json.dumps(
+            {
+                "summary": f"{len(errors)} errors, {len(warnings)} warnings, {len(infos)} info",
+                "errors": errors,
+                "warnings": warnings,
+                "info": infos,
+            },
+            indent=2,
+        )
     elif target == "claims":
         return export_claims_text(patent, jur)
     elif target == "drawings_description":

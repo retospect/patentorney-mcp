@@ -34,25 +34,37 @@ def sample_patent() -> Patent:
     return Patent(
         reference_numerals=[
             ReferenceNumeral(
-                id="rv", label="reactor vessel", number=100,
-                prev_numbers=[], introduced_in="f1",
+                id="rv",
+                label="reactor vessel",
+                number=100,
+                prev_numbers=[],
+                introduced_in="f1",
             ),
             ReferenceNumeral(
-                id="ip", label="inlet port", number=102,
-                prev_numbers=[], introduced_in="f1",
+                id="ip",
+                label="inlet port",
+                number=102,
+                prev_numbers=[],
+                introduced_in="f1",
             ),
         ],
         figures=[
-            Figure(id="f1", title="a schematic of the reactor", numerals_shown=["rv", "ip"]),
+            Figure(
+                id="f1", title="a schematic of the reactor", numerals_shown=["rv", "ip"]
+            ),
         ],
         claims=[
             Claim(
-                id="m1", type="independent", category="method",
+                id="m1",
+                type="independent",
+                category="method",
                 body=ClaimBody(
                     preamble="A method for synthesis",
                     transitional="comprising",
                     elements=[
-                        ClaimElement(text="providing a reactor vessel", numerals=["rv"]),
+                        ClaimElement(
+                            text="providing a reactor vessel", numerals=["rv"]
+                        ),
                         ClaimElement(
                             text="introducing fluid through an inlet port",
                             numerals=["ip"],
@@ -62,7 +74,10 @@ def sample_patent() -> Patent:
                 reference_numerals_used=["rv", "ip"],
             ),
             Claim(
-                id="m1a", type="dependent", category="method", depends_on="m1",
+                id="m1a",
+                type="dependent",
+                category="method",
+                depends_on="m1",
                 body=ClaimBody(
                     preamble="",
                     transitional="wherein",
@@ -95,7 +110,9 @@ class TestYAMLRoundTrip:
         assert patent.metadata.title == "Untitled Patent Application"
         assert len(patent.claims) == 0
 
-    def test_round_trip_preserves_elements(self, tmp_patent_path: Path, sample_patent: Patent):
+    def test_round_trip_preserves_elements(
+        self, tmp_patent_path: Path, sample_patent: Patent
+    ):
         save_patent(sample_patent, tmp_patent_path)
         loaded = load_patent(tmp_patent_path)
         assert len(loaded.claims[0].body.elements) == 2
@@ -122,7 +139,11 @@ class TestClaimRendering:
 
     def test_render_dependent(self, sample_patent: Patent):
         text = render_claim_text(
-            sample_patent.claims[1], 2, sample_patent, jurisdiction="EP", parent_number=1
+            sample_patent.claims[1],
+            2,
+            sample_patent,
+            jurisdiction="EP",
+            parent_number=1,
         )
         assert "claim 1" in text
         assert "wherein" in text
@@ -167,6 +188,7 @@ class TestExamplePatent:
 
     def test_example_consistency(self):
         from patentorney_mcp.validators import validate_consistency
+
         example = Path(__file__).parent.parent / "example_patent.yaml"
         if not example.exists():
             pytest.skip("example_patent.yaml not found")

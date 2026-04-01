@@ -3,9 +3,7 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-.venv/
-.pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.DS_Store
-*.swp
+.pytest_cache/
+.venv/

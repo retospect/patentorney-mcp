@@ -38,8 +38,12 @@ class ReferenceNumeral(BaseModel):
 
     id: str = Field(..., description="Stable kebab-case slug, e.g. 'reactor-vessel'")
     label: str = Field(..., min_length=1, description="Human-readable element name")
-    number: int = Field(..., ge=100, description="Current assigned numeral (100, 102, …)")
-    prev_numbers: list[int] = Field(default_factory=list, description="History of prior numbers")
+    number: int = Field(
+        ..., ge=100, description="Current assigned numeral (100, 102, …)"
+    )
+    prev_numbers: list[int] = Field(
+        default_factory=list, description="History of prior numbers"
+    )
     introduced_in: str = Field(..., description="Stable figure ID where first shown")
 
     @field_validator("id")
@@ -51,7 +55,9 @@ class ReferenceNumeral(BaseModel):
     @classmethod
     def must_be_even(cls, v: int) -> int:
         if v % 2 != 0:
-            raise ValueError(f"Reference numeral {v} must be even (skip every other number)")
+            raise ValueError(
+                f"Reference numeral {v} must be even (skip every other number)"
+            )
         return v
 
 
@@ -185,7 +191,9 @@ class IDSSubmission(BaseModel):
     """Record of an Information Disclosure Statement filing."""
 
     date: str = Field(..., description="Filing date, e.g. '2025-03-14'")
-    refs: list[str] = Field(default_factory=list, description="Prior art slugs submitted")
+    refs: list[str] = Field(
+        default_factory=list, description="Prior art slugs submitted"
+    )
     status: Literal["draft", "filed", "acknowledged"] = Field(default="draft")
 
 
@@ -215,7 +223,9 @@ Jurisdiction = Literal["EP", "US"]
 class RelatedApplication(BaseModel):
     """A related patent application (priority, continuation, etc.)."""
 
-    type: Literal["provisional", "continuation", "divisional", "cip", "pct"] = Field(...)
+    type: Literal["provisional", "continuation", "divisional", "cip", "pct"] = Field(
+        ...
+    )
     number: str = Field(default="")
     date: str = Field(default="")
     status: str = Field(default="")
@@ -228,7 +238,9 @@ class Metadata(BaseModel):
     applicant: str = Field(default="")
     inventors: list[dict[str, str]] = Field(default_factory=list)
     filing_date: str = Field(default="")
-    target_jurisdictions: list[Jurisdiction] = Field(default_factory=lambda: ["EP", "US"])
+    target_jurisdictions: list[Jurisdiction] = Field(
+        default_factory=lambda: ["EP", "US"]
+    )
     related_applications: list[RelatedApplication] = Field(default_factory=list)
     government_funded: bool = Field(default=False)
     joint_research_agreement: bool = Field(default=False)
@@ -310,7 +322,8 @@ class Patent(BaseModel):
         """
         base = (series // 100) * 100
         existing = {
-            rn.number for rn in self.reference_numerals
+            rn.number
+            for rn in self.reference_numerals
             if (rn.number // 100) * 100 == base
         }
         candidate = base
