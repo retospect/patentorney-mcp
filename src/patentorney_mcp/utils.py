@@ -6,14 +6,19 @@ access from multiple MCP server instances, atomic write via tmp+rename.
 
 from __future__ import annotations
 
-import fcntl
 import logging
+import sys
 import re
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
 import yaml
+
+if sys.platform == "win32":
+    import msvcrt
+else:
+    import fcntl
 
 from patentorney_mcp.models import (
     Claim,
@@ -135,8 +140,25 @@ def project_root() -> Path:
 
 
 # ---------------------------------------------------------------------------
-# File locking (tome pattern — fcntl.flock on sidecar .lock file)
+# File locking (tome pattern — fcntl.flock on Unix, msvcrt on Windows)
 # ---------------------------------------------------------------------------
+
+
+def _lock(fd) -> None:  # type: ignore[no-untyped-def]
+    if sys.platform == "win32":
+        msvcrt.locking(fd.fileno(), msvcrt.LK_LOCK, 1)
+    else:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+
+
+def _unlock(fd) -> None:  # type: ignore[no-untyped-def]
+    if sys.platform == "win32":
+        try:
+            msvcrt.locking(fd.fileno(), msvcrt.LK_UNLCK, 1)
+        except OSError:
+            pass
+    else:
+        fcntl.flock(fd, fcntl.LOCK_UN)
 
 
 @contextmanager
@@ -147,11 +169,11 @@ def file_lock(path: Path) -> Iterator[None]:
     fd = open(lock_path, "w")  # noqa: SIM115
     try:
         logger.debug("Acquiring lock on %s", lock_path)
-        fcntl.flock(fd, fcntl.LOCK_EX)
+        _lock(fd)
         logger.debug("Lock acquired on %s", lock_path)
         yield
     finally:
-        fcntl.flock(fd, fcntl.LOCK_UN)
+        _unlock(fd)
         fd.close()
         logger.debug("Lock released on %s", lock_path)
 
@@ -211,7 +233,7 @@ class PatentTransaction:
     def __enter__(self) -> Patent:
         self._lock_path.parent.mkdir(parents=True, exist_ok=True)
         self._lock_fd = open(self._lock_path, "w")
-        fcntl.flock(self._lock_fd, fcntl.LOCK_EX)
+        _lock(self._lock_fd)
         self._patent = load_patent(self._path)
         return self._patent
 
@@ -221,7 +243,7 @@ class PatentTransaction:
                 _atomic_write(self._patent, self._path)
         finally:
             if self._lock_fd is not None:
-                fcntl.flock(self._lock_fd, fcntl.LOCK_UN)
+                _unlock(self._lock_fd)
                 self._lock_fd.close()
 
 
