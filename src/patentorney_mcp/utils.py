@@ -7,8 +7,8 @@ access from multiple MCP server instances, atomic write via tmp+rename.
 from __future__ import annotations
 
 import logging
-import sys
 import re
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
